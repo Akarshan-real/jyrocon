@@ -1,0 +1,12 @@
+// Configuration matching hardware/include/config.h
+export const BLE_CONFIG = {
+  DEVICE_NAME: 'ESP32-S3',
+  SERVICE_UUID: '4fafc201-1fb5-459e-8fcc-c5c9c331914b',
+  CHARACTERISTIC_UUID: 'beb5483e-36e1-4688-b7f5-ea07361b26a8',
+  TRANSMIT_INTERVAL_MS: 30, // 30ms transmission cycle (~33 Hz)
+};
+
+export const DRIVE_MODES = {
+  GYRO: 1,
+  BUTTON: 2,
+} as const;
