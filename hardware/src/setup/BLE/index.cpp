@@ -3,21 +3,19 @@
 #include <config.h>
 #include <BLE.h>
 
-// Shared state variables
 int carMode  = MODE_BUTTON;
 int carSpeed = 0;
 int carTurn  = 0;
+int carBrake = 0;
 
 bool phoneConnected = false;
 unsigned long lastMessageTime = 0;
 
-// When phone connects or disconnects
 class MyServerCallbacks : public NimBLEServerCallbacks {
     void onConnect(NimBLEServer* pServer, NimBLEConnInfo& connInfo) override {
         phoneConnected = true;
         Serial.println("[BLE] Phone connected!");
         
-        // Ask phone for fastest speed (7.5ms to 15ms connection interval)
         pServer->updateConnParams(connInfo.getConnHandle(), 6, 12, 0, 200);
     }
 
@@ -25,17 +23,16 @@ class MyServerCallbacks : public NimBLEServerCallbacks {
         phoneConnected = false;
         carSpeed = 0;
         carTurn = 0;
+        carBrake = 0;
         Serial.println("[BLE] Phone disconnected, waiting for reconnection...");
         NimBLEDevice::startAdvertising();
     }
 };
 
-// When phone writes new 3-byte command
 class MyDataCallbacks : public NimBLECharacteristicCallbacks {
     void onWrite(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo) override {
         std::string rawData = pCharacteristic->getValue();
 
-        // Process incoming packet with range guards in utils
         processBlePacket(rawData);
     }
 };

@@ -1,2 +1,7 @@
-// Placeholder for car control custom hook
-export {};
+export { useCar, CarProvider } from '../context/CarContext';
+export type {
+  CarContextType,
+  CarDrivingState,
+  ConnectionStatus,
+  ModeType,
+} from '../types/car';

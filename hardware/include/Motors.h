@@ -4,9 +4,9 @@
 
 void motorsSetup();
 void stopMotors();
+void brakeMotors();
 
-// Direct motor control (-100 to +100)
 void runMotors(int leftSpeed, int rightSpeed);
 
-// Smart drive: handles normal forward/back driving AND tank turns
-void driveCar(int mode, int speed, int turn);
+void driveCar(int mode, int speed, int turn, int brake);
+
