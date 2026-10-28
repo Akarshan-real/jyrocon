@@ -6,6 +6,6 @@ export const BLE_CONFIG = {
 };
 
 export const DRIVE_MODES = {
-  GYRO: 1,
-  BUTTON: 2,
+  BUTTON: 1,
+  GYRO: 2,
 } as const;

@@ -6,16 +6,26 @@ Mobile controller application for the Jyrocon RC car. Built with **React Native 
 
 ## Key Features
 
-- **Mode 1: Free Hand (Gyroscope/Accelerometer Tilt)**:
-  - Phone forward / backward tilt controls speed (-100 to +100).
-  - Phone left / right tilt controls steering angle (-100 to +100).
-- **Mode 2: Virtual Buttons & Tank Turn**:
-  - Directional buttons for forward and reverse with servo steering.
-  - Pressing Left or Right alone triggers an in-place **Tank Turn** (wheels spin in opposite directions to rotate in place).
+- **Mode 1: Virtual Buttons (D-Pad) & Tank Turn**:
+  - Tactile directional buttons for forward, reverse, left, and right.
+  - Smooth acceleration/deceleration ramping for precise throttle control.
+  - Pressing Left or Right alone at zero speed triggers an in-place **Tank Turn** (rear wheels counter-rotate to spin on the spot).
+- **Mode 2: Free Hand (Gyroscope/Accelerometer Tilt)**:
+  - Phone forward / backward pitch controls throttle (-100 to +100).
+  - Phone left / right roll controls steering angle (-100 to +100).
+  - **Set Neutral Calibration**: One-tap zeroing to calibrate your holding position as neutral.
+- **Instrument Gauge & Dynamic Readout**:
+  - Horizontally centered speed gauge with needle display.
+  - Dynamic digital speed readout colored by state (Cyan = Forward, Orange = Reverse, Red = Braking).
+- **Tactile Emergency Brake**:
+  - Dedicated full-width brake control with instant throttle cut and active H-Bridge braking.
+- **Scanning & Auto-Reconnect**:
+  - Scanning screen (`SearchingBLE`) showing nearby devices with live RSSI signal bars and connection status.
+  - Connected device badge with one-tap disconnect button.
 - **Ultra-Low Latency Transmission**:
   - Uses `react-native-ble-plx` with `writeWithoutResponse`.
-  - Streams compact 3-byte packets at ~30ms intervals.
-  - Requests high-speed BLE connection priority (7.5ms - 15ms interval).
+  - Compact 4-byte stream: `[mode, speed, turn, brake]` sent at ~30ms intervals.
+  - High-speed BLE connection priority (7.5ms – 15ms connection interval).
 
 ---
 
@@ -23,19 +33,35 @@ Mobile controller application for the Jyrocon RC car. Built with **React Native 
 
 ```text
 app/
-├── App.tsx                    # Root component (renders ControllerScreen)
-├── android/                   # Android native project and manifest
+├── App.tsx                        # Root navigator (SearchingBLE <-> ControllerScreen)
+├── android/                       # Android native project and manifest
 │
 └── src/
+    ├── components/
+    │   ├── ArrowButton/           # Directional button with haptic feedback
+    │   ├── ArrowControl/          # Mode 1 D-Pad and central brake button
+    │   ├── BrakeButton/           # Emergency brake button
+    │   ├── CalibrateButton/       # Mode 2 neutral angle calibration button
+    │   ├── FreehandControl/       # Mode 2 UI (Calibrate + Brake)
+    │   └── ModeButton/            # Mode switcher toggle (Mode 1 / Mode 2)
     ├── config/
-    │   └── bleConfig.ts       # UUIDs and transmission constants
-    ├── services/
-    │   ├── bleService.ts      # BLE scanning, connection, and transmission
-    │   └── sensorService.ts   # Gyro/accelerometer streaming
+    │   └── bleConfig.ts           # Service/characteristic UUIDs, drive modes, and timing
+    ├── context/
+    │   └── CarContext.tsx         # Centralized state (BLE lifecycle, throttle ramping, sensor stream)
     ├── hooks/
-    │   └── useCarControl.ts   # Custom hook connecting sensors, UI, and BLE loop
-    └── screens/
-        └── ControllerScreen.tsx # Dual-mode controller UI
+    │   └── useCarControl.ts       # Hook for easy access to CarContext
+    ├── screens/
+    │   ├── ControllerScreen.tsx   # Primary control cockpit with gauge & dynamic controls
+    │   └── SearchingBLE.tsx       # BLE device discovery & RSSI signal strength screen
+    ├── services/
+    │   ├── bleService.ts          # BLE scanning, connection, and transmission
+    │   └── sensorService.ts       # Gyroscope & accelerometer sensor listener
+    ├── styles/
+    │   └── typography.ts          # Custom fonts (Anta-Regular, Wallpoet-Regular)
+    ├── types/
+    │   └── car.ts                 # TypeScript interfaces and packet definitions
+    └── utils/
+        └── feedback.ts            # Haptic vibration triggers
 ```
 
 ---
@@ -58,8 +84,8 @@ From the `app/` directory:
 npm install
 
 # 2. Start Metro bundler
-npx react-native start
+npm run start
 
 # 3. Run on connected Android device
-npx react-native run-android
+npm run android
 ```

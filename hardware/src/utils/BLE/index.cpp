@@ -7,49 +7,46 @@ bool isPhoneConnected() {
         return false;
     }
 
-    if (millis() - lastMessageTime > SAFETY_TIMEOUT_MS) {
+    if ((millis() - lastMessageTime) > SAFETY_TIMEOUT_MS) {
         return false;
     }
 
     return true;
 }
 
-void processBlePacket(const std::string& rawData) {
-    if (rawData.length() < 3) {
+void processBlePacket(const uint8_t* data, size_t length) {
+    if (data == nullptr || length < 3) {
         return;
     }
 
-    int rawMode  = (uint8_t)rawData[0];
-    int rawSpeed = (int8_t)rawData[1];
-    int rawTurn  = (int8_t)rawData[2];
-    int rawBrake = rawData.length() >= 4 ? (uint8_t)rawData[3] : 0;
+    // Byte 0: Drive Mode Selection (1 = MODE_BUTTON, 2 = MODE_GYRO)
+    int rawMode  = (uint8_t)data[0];
 
+    // Byte 1: Throttle / Speed (-100 to +100)
+    int rawSpeed = (int8_t)data[1];
+
+    // Byte 2: Steering Angle (-100 to +100)
+    int rawTurn  = (int8_t)data[2];
+
+    // Byte 3: Emergency Brake flag (0 or 1, optional 4th byte for backwards compatibility)
+    int rawBrake = length >= 4 ? (uint8_t)data[3] : 0;
+
+    // Validate mode: 2 = Gyro Tilt, fallback to 1 = Virtual Buttons
     if (rawMode == MODE_GYRO) {
         carMode = MODE_GYRO;
-    } else if (rawMode == MODE_BUTTON) {
-        carMode = MODE_BUTTON;
     } else {
         carMode = MODE_BUTTON;
     }
 
-    if (rawSpeed < -100) {
-        carSpeed = -100;
-    } else if (rawSpeed > 100) {
-        carSpeed = 100;
-    } else {
-        carSpeed = rawSpeed;
-    }
+    // Clamp speed: [-100 (Reverse) ... 0 (Idle) ... +100 (Forward)]
+    carSpeed = constrain(rawSpeed, -100, 100);
 
-    if (rawTurn < -100) {
-        carTurn = -100;
-    } else if (rawTurn > 100) {
-        carTurn = 100;
-    } else {
-        carTurn = rawTurn;
-    }
+    // Clamp turn: [-100 (Full Left) ... 0 (Center) ... +100 (Full Right)]
+    carTurn  = constrain(rawTurn, -100, 100);
 
-    carBrake = (rawBrake == 1) ? 1 : 0;
+    // Boolean Brake flag: true = Hard Brake active, false = Normal drive
+    carBrake = (rawBrake == 1);
 
+    // Update timestamp to refresh the 200ms safety watchdog
     lastMessageTime = millis();
 }
-

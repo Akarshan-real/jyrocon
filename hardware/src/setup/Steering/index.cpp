@@ -5,6 +5,10 @@
 
 Servo myServo;
 
+void setServoAngle(int angle) {
+    myServo.write(angle);
+}
+
 void steeringSetup() {
     myServo.setPeriodHertz(50);
     myServo.attach(SERVO_PIN, 500, 2400);

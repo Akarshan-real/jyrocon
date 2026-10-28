@@ -14,15 +14,13 @@
 #define LEFT_MOTOR_SPEED_PIN    5
 #define LEFT_MOTOR_FORWARD_PIN  6
 #define LEFT_MOTOR_BACKWARD_PIN 7
+#define LEFT_MOTOR_PWM_CHANNEL  0
 
 #define RIGHT_MOTOR_SPEED_PIN    8
 #define RIGHT_MOTOR_FORWARD_PIN  9
 #define RIGHT_MOTOR_BACKWARD_PIN 10
+#define RIGHT_MOTOR_PWM_CHANNEL  1
 
 #define FRONT_LEDS_PIN           11
 
 #define REAR_LEDS_PIN            12
-
-#define RGB_LED_PIN              48
-#define RGB_LED_COUNT            1
-#define RGB_BRIGHTNESS           50

@@ -8,5 +8,4 @@ void brakeMotors();
 
 void runMotors(int leftSpeed, int rightSpeed);
 
-void driveCar(int mode, int speed, int turn, int brake);
-
+void driveCar(int mode, int speed, int turn, bool brake);

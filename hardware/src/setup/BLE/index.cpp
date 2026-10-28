@@ -6,7 +6,7 @@
 int carMode  = MODE_BUTTON;
 int carSpeed = 0;
 int carTurn  = 0;
-int carBrake = 0;
+bool carBrake = false;
 
 bool phoneConnected = false;
 unsigned long lastMessageTime = 0;
@@ -23,7 +23,8 @@ class MyServerCallbacks : public NimBLEServerCallbacks {
         phoneConnected = false;
         carSpeed = 0;
         carTurn = 0;
-        carBrake = 0;
+        carBrake = false;
+        
         Serial.println("[BLE] Phone disconnected, waiting for reconnection...");
         NimBLEDevice::startAdvertising();
     }
@@ -32,8 +33,7 @@ class MyServerCallbacks : public NimBLEServerCallbacks {
 class MyDataCallbacks : public NimBLECharacteristicCallbacks {
     void onWrite(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo) override {
         std::string rawData = pCharacteristic->getValue();
-
-        processBlePacket(rawData);
+        processBlePacket((const uint8_t*)rawData.data(), rawData.length());
     }
 };
 
@@ -56,7 +56,6 @@ void bleSetup() {
     );
     pChar->setCallbacks(&dataCallbacks);
 
-    pService->start();
 
     NimBLEAdvertising* pAdvertising = NimBLEDevice::getAdvertising();
     pAdvertising->addServiceUUID(SERVICE_UUID);

@@ -17,8 +17,6 @@ void setup() {
 void loop() {
     bool connected = isPhoneConnected();
 
-    updateStatusLed(connected, carMode);
-
     if (!connected) {
         stopMotors();
         centerWheels();
